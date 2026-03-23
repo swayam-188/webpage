@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Birthday Surprise</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Poppins',sans-serif;overflow:hidden}
+
+/* ===== START SCREEN ===== */
+#startScreen{
+  position:fixed;inset:0;background:#000;color:#fff;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;z-index:10;
+}
+.start-btn{margin-top:20px;padding:14px 28px;border:none;border-radius:999px;font-size:18px;background:#ffffff22;color:#fff}
+
+/* ===== BOOM SCREEN ===== */
+#boom{position:fixed;inset:0;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;font-size:3rem;font-family:'Playfair Display',serif;opacity:0;pointer-events:none;z-index:9}
+
+/* ===== MAIN PAGE ===== */
+#main{
+  position:fixed;inset:0;display:none;overflow-y:auto;overflow-x:hidden;
+  background:linear-gradient(135deg,#ff9a9e,#fad0c4,#a1c4fd,#c2e9fb);
+  background-size:400% 400%;animation:gradientMove 15s ease infinite;
+}
+@keyframes gradientMove{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+
+/* Soft collage blend */
+#main::before{
+  content:"";
+  position:fixed;     /* 👈 key change */
+  top:-10vh;          /* extend beyond edges */
+  left:-10vw;
+  width:120vw;
+  height:120vh;
+
+  background:url('collage.jpg') center/cover no-repeat;
+
+  filter: blur(18px) brightness(.7);
+  z-index:-2;
+}
+/* soft overlay for readability */
+#main::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.25);
+  z-index:-1;
+}
+/* ===== LAYOUT ===== */
+.wrapper{position:relative;max-width:1100px;margin:auto;padding:60px 16px 80px;display:grid;grid-template-columns:1fr minmax(280px,560px) 1fr;gap:18px;align-items:start}
+
+/* ===== PHOTO COLUMNS ===== */
+.side{display:flex;flex-direction:column;gap:18px;align-items:center}
+
+.introText{
+  font-size:1.6rem;
+  text-align:center;
+  line-height:1.6;
+  opacity:0;
+  animation:fadeInText 2s ease forwards;
+}
+/* ===== MOBILE PHOTO SLIDER ===== */
+.photoSlider{
+  display:none;
+}
+
+.readBtn{
+  display:none;
+}
+#gate{
+  position:fixed;
+  inset:0;
+  background:#000;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+  text-align:center;
+}
+
+.gateBox{
+  font-size:1.6rem;
+  padding:20px;
+}
+
+@media (max-width:768px){
+
+  .side{display:none;}   /* hide desktop side photos */
+
+  .photoSlider{
+    display:flex;
+    gap:16px;
+    overflow-x:auto;
+    padding:20px 10px;
+    scroll-snap-type:x mandatory;
+  }
+
+  .photoSlider::-webkit-scrollbar{
+    display:none;
+  }
+
+  .photoSlider .card{
+    min-width:110px;
+    height:140px;
+    scroll-snap-align:center;
+  }
+
+  .readBtn{
+    display:block;
+    margin:20px auto;
+    padding:14px 28px;
+    border:none;
+    border-radius:999px;
+    font-size:18px;
+    background:#ffffffdd;
+    color:#333;
+    font-weight:600;
+  }
+
+  .message{
+    display:none; /* hide message initially on phone */
+  }
+}
+.start-btn{
+  margin-top:28px;
+  padding:14px 28px;
+  border:none;
+  border-radius:999px;
+  font-size:18px;
+  background:#ffffff22;
+  color:#fff;
+  opacity:0;
+  animation:fadeInBtn 2s ease forwards;
+  animation-delay:2s; /* button appears after text */
+}
+
+@keyframes fadeInText{
+  to{opacity:1}
+}
+
+@keyframes fadeInBtn{
+  to{opacity:1}
+}
+.confetti{
+  position:fixed;
+  top:-20px;
+  width:10px;
+  height:14px;
+  opacity:.9;
+  animation:fall linear forwards;
+  z-index:20;
+}
+
+@keyframes fall{
+  to{
+    transform:translateY(110vh) rotate(720deg);
+    opacity:1;
+  }
+}
+
+.card{
+  width:120px;height:150px;border-radius:16px;overflow:hidden;
+  background:#fff;box-shadow:0 10px 30px rgba(0,0,0,.25);
+  transform:rotate(var(--rot));
+  animation:float 6s ease-in-out infinite;
+}
+
+.card:nth-child(1){animation-delay:0s}
+.card:nth-child(3){animation-delay:1s}
+.card:nth-child(5){animation-delay:2s}
+
+@keyframes float{
+  0%,100%{transform:translateY(0) rotate(var(--rot))}
+  50%{transform:translateY(-14px) rotate(var(--rot))}
+}
+.card img{width:100%;height:100%;object-fit:cover}
+
+/* white curved line (pen style) */
+.line{
+  width:2px;height:28px;background:#fff;border-radius:2px;opacity:.9;
+  transform:rotate(var(--tilt));
+}
+
+/* ===== CENTER CONTENT ===== */
+.content{text-align:center;color:#fff}
+
+h1{font-family:'Playfair Display',serif;font-size:2.4rem;margin-bottom:26px;text-shadow:0 4px 20px rgba(0,0,0,.35)}
+
+.message{
+  white-space:pre-line;line-height:1.9;font-size:1.15rem;
+  background:rgba(255,255,255,.2);
+  padding:26px;border-radius:20px;backdrop-filter:blur(10px);
+  box-shadow:0 12px 40px rgba(0,0,0,.25);
+}
+
+.closing{margin-top:40px;font-family:'Playfair Display',serif;font-size:1.8rem;text-shadow:0 4px 20px rgba(0,0,0,.35)}
+.signature{margin-top:10px;opacity:.95}
+
+/* Mobile: hide side photos for clean view */
+@media (max-width:768px){
+  .wrapper{grid-template-columns:1fr}
+  .side{display:none}
+}
+</style>
+</head>
+<body>
+<div id="gate">
+  <div class="gateBox">
+    📱 Please rotate your device<br>
+    🔊 Increase volume for best experience
+  </div>
+</div>
+<div id="startScreen">
+
+  <div class="introText">
+    Hii Shreya 💙<br>
+    Happy Birthday 🎂<br>
+    This is a small gift for you ✨
+  </div>
+
+  <button class="start-btn" onclick="begin()">Tap this 💫</button>
+
+</div>
+
+<div id="boom">🎉 SURPRISE 🎉</div>
+
+<div id="main">
+  <audio id="music" loop>
+    <source src="sound.mp3" type="audio/mpeg">
+  </audio>
+
+  <div class="wrapper">
+
+    <!-- LEFT PHOTO COLUMN -->
+    <div class="side">
+      <div class="card" style="--rot:-6deg"><img src="left1.jpeg"></div>
+      <div class="line" style="--tilt:18deg"></div>
+      <div class="card" style="--rot:4deg"><img src="left2.jpeg"></div>
+      <div class="line" style="--tilt:-22deg"></div>
+      <div class="card" style="--rot:-3deg"><img src="left3.jpeg"></div>
+    </div>
+
+    <!-- CENTER MESSAGE -->
+    <div class="content">
+      <h1>Happy Birthday,🎂💙</h1>
+      <!-- 📱 MOBILE PHOTO SLIDER -->
+      <div class="photoSlider">
+        <div class="card"><img src="left1.jpeg"></div>
+        <div class="card"><img src="left2.jpeg"></div>
+        <div class="card"><img src="left3.jpeg"></div>
+        <div class="card"><img src="right1.jpeg"></div>
+        <div class="card"><img src="right2.jpeg"></div>
+        <div class="card"><img src="right3.jpeg"></div>
+     </div>
+
+<button class="readBtn" onclick="showMessage()">Read Message 💌</button>
+
+      <div class="message">
+Happy Birthday, Shreya 💙
+I hope this birthday brings you a lot of happiness
+and joy.
+
+I don’t think I can say this enough in front,
+but having you in my life
+means a lot to me.
+
+A friend like you is rare to find because
+From the first semester until now,
+you never changed - same person, same vibe.
+
+As you know People come and go in our life,
+but i'm happy that you didn't changed your kindness towards me.
+And in a place where everything kept changing,
+you became something constant for me.
+
+You always made me feel included,
+even when I didn’t feel like I belonged anywhere.
+
+I want you to always be happy in your life.
+Don’t let people hurt you or dim your light,
+because you deserve so much better than that.
+
+So just be happy and enjoy every moment.
+I’m really glad that out of all people,
+life gave me you as a friend 💙
+
+And when college ends
+and all of this becomes just memories,
+you will be the first person I am going to remember.
+      </div>
+
+      <div class="closing">Thank you for being my best friend ❤️</div>
+      <div class="signature">— From someone who will always be on your side</div>
+    </div>
+
+    <!-- RIGHT PHOTO COLUMN -->
+    <div class="side">
+      <div class="card" style="--rot:5deg"><img src="right1.jpeg"></div>
+      <div class="line" style="--tilt:-16deg"></div>
+      <div class="card" style="--rot:-4deg"><img src="right2.jpeg"></div>
+      <div class="line" style="--tilt:20deg"></div>
+      <div class="card" style="--rot:3deg"><img src="right3.jpeg"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function begin(){
+
+  document.getElementById('startScreen').style.display = 'none';
+
+  const boom = document.getElementById('boom');
+  boom.style.opacity = 1;
+
+  // 🎊 Confetti only
+  launchConfetti();
+
+  setTimeout(()=>{
+    boom.style.display = 'none';
+
+    const main = document.getElementById('main');
+    main.style.display = 'block';
+
+    // 🎵 Start background music
+    const music = document.getElementById('music');
+if(music){
+  music.volume = 0.5;  // 🔊 CHANGE THIS VALUE (0.0 → 1.0)
+  music.play().catch(()=>{});
+}
+  }, 1800);
+}
+function checkOrientation(){
+
+  // landscape = width > height
+  if(window.innerWidth > window.innerHeight){
+
+    // hide gate
+    document.getElementById('gate').style.display = 'none';
+
+  }else{
+
+    // show gate
+    document.getElementById('gate').style.display = 'flex';
+  }
+}
+
+// run on load
+checkOrientation();
+
+// run when rotated
+window.addEventListener('resize', checkOrientation);
+window.addEventListener('orientationchange', checkOrientation);
+function showMessage(){
+  const msg = document.querySelector('.message');
+  msg.style.display = 'block';
+
+  const btn = document.querySelector('.readBtn');
+  btn.style.display = 'none';
+}
+function launchConfetti(){
+
+  const colors = ["#ff4d6d","#ffd166","#06d6a0","#118ab2","#ffffff"];
+
+  for(let i=0;i<120;i++){
+    const c = document.createElement("div");
+    c.className = "confetti";
+
+    c.style.left = Math.random()*100 + "vw";
+    c.style.background = colors[Math.floor(Math.random()*colors.length)];
+    c.style.animationDuration = (3 + Math.random()*2) + "s";
+
+    document.body.appendChild(c);
+
+    setTimeout(()=>c.remove(),5000);
+  }
+}
+</script>
+
+</body>
+</html>
